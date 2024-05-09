@@ -1,3 +1,9 @@
+"""
+VAE implementation for mri images
+inspiration from https://github.com/rcantini/CNN-VAE-MNIST
+this script was build for usage on my personal laptop to test the functionality
+the script that was used to actually generate results is 'VAE_ADNI.py'
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -208,7 +214,8 @@ if __name__ == '__main__':
     image_shape = (32, 32, 32, 1)
 
     print("Loading data")
-    images = load_npy(directory='/Users/Torben/Desktop/Bioinformatik_Master/3.Semester/Praktikum_Andreas/Daten/AD_coronal_cube/*.npy')
+    images = load_npy(directory='/Users/Torben/Desktop/Bioinformatik_Master/3.Semester'
+                                '/Praktikum_Andreas/Daten/AD_coronal_cube/*.npy')
     print(f'Number of images in original dataset and before filtering: {len(images)}')
     images = filter_arrays_for_black_cube(images)
     print(f'Number of images after filtering: {len(images)}')

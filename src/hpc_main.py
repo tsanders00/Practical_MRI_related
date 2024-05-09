@@ -1,7 +1,11 @@
+"""
+CNN classification for mri images on Alzheimer's disease
+used mri images were provided by ADNI
+this script was build for usage on a cluster
+"""
 import glob
 import numpy as np
 import keras
-from keras.losses import BinaryCrossentropy
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Conv3D, MaxPooling3D, Flatten, Dense, Dropout
@@ -9,6 +13,11 @@ from keras.utils import to_categorical
 import tensorflow as tf
 
 def load_npy(directory):
+    """
+    load npy files
+    :param directory:
+    :return: images as numpy arrays
+    """
     images = []
     npy_files = glob.glob(directory)
 
@@ -36,7 +45,8 @@ def pad_images(list):
 
 def generate_and_filter_pseudo_labels_with_conf_score(model, dataset):
     """
-
+    method used in semi supervised learning
+    model predicts labels for images, if confidence score is surpassed, these images are returned
     :param model:
     :param dataset:
     :return:

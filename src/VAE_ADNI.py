@@ -1,3 +1,8 @@
+"""
+VAE implementation for mri images
+inspiration from https://github.com/rcantini/CNN-VAE-MNIST
+this script was build for usage on a cluster
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -10,6 +15,12 @@ import glob
 
 
 def plot_history(history, fname):
+    """
+    plot metrics
+    :param history: training metrics
+    :param fname: file name to save the image to
+    :return: None
+    """
     history = pd.DataFrame(history)
     history.plot(figsize=(16, 10))
     plt.grid(True)
@@ -21,6 +32,11 @@ def plot_history(history, fname):
 
 
 def load_npy(directory):
+    """
+    load npy files
+    :param directory:
+    :return: images as numpy arrays
+    """
     images = []
     npy_files = glob.glob(directory)
 
@@ -48,6 +64,11 @@ def pad_images(list):
 
 
 def separate_and_stack_slices(array_list):
+    """
+    function to separate and stack mri slices
+    :param array_list:
+    :return:
+    """
     # Check if the input list is not empty
     if not array_list:
         raise ValueError("Input list is empty")
@@ -63,6 +84,11 @@ def separate_and_stack_slices(array_list):
     return stacked_array
 
 def filter_arrays_for_black_cube(arrays: list):
+    """
+    function to remove mri cubes which are mostly black and therefore do not contain relevant structures
+    :param arrays:
+    :return:
+    """
     result = []
     for arr in arrays:
         if np.max(arr) > 15:
@@ -70,6 +96,11 @@ def filter_arrays_for_black_cube(arrays: list):
     return result
 
 def filter_arrays_for_small_cube(arrays: list):
+    """
+    function to remove mri cubes which are too small
+    :param arrays:
+    :return:
+    """
     result = []
     for arr in arrays:
         if arr.shape[0] > 15:
@@ -78,6 +109,11 @@ def filter_arrays_for_small_cube(arrays: list):
 
 
 def sampling(args):
+    """
+    function for sampling from latent space
+    :param args:
+    :return:
+    """
     mu, sigma = args
     batch = K.shape(mu)[0]
     dim = K.int_shape(mu)[1]
@@ -143,6 +179,8 @@ def evaluate_model(vae, models, x_test):
     # Reconstruction accuracy
     reconstruction_loss = []
     latent_representations = []
+
+    # generate images and calc reconstruction loss
     for batch in x_test:
         batch_reshaped = np.expand_dims(batch, axis=0)
         batch_reshaped = np.expand_dims(batch_reshaped, axis=-1)
@@ -155,7 +193,6 @@ def evaluate_model(vae, models, x_test):
     avg_rec_loss = np.mean(reconstruction_loss)
     print(f'Average Reconstruction Loss on Test Set: {avg_rec_loss}')
 
-    # Generating samples from the latent space
     num_samples = 3
     x_test_npy = np.stack(list(x_test))
 
@@ -184,6 +221,15 @@ def evaluate_model(vae, models, x_test):
 
 
 def generate_and_test_images_with_cnn(vae, x_test, number_of_pictures, save_path, model_path):
+    """
+    Generate and test images with a CNN model (Classification)
+    :param vae:
+    :param x_test:
+    :param number_of_pictures:
+    :param save_path:
+    :param model_path:
+    :return:
+    """
     # load trained model
     cnn_model = tf.keras.models.load_model(model_path)
     cnn_model.summary()
@@ -198,13 +244,11 @@ def generate_and_test_images_with_cnn(vae, x_test, number_of_pictures, save_path
     vae_images = vae_images.reshape(vae_images.shape[0], 32, 32, 32, 1)
     print(vae_images.shape)
     # create labels for new images
+    # 0 for health, 1 for sick
     test_labels = [0] * number_of_pictures
     test_labels = np.array(test_labels)
     print(test_labels.shape)
     print(f'dtype of vae images: {vae_images[0].dtype}')
-
-    # loss, acc = cnn_model.evaluate(vae_images, test_labels, verbose=2)
-    # print(f'Accuracy of trained cnn on vae generated images: {acc*100:.2f}%')
 
     # predict new VAE images with cnn
     predictions = cnn_model.predict(vae_images, verbose=2)
@@ -220,8 +264,6 @@ def generate_and_test_images_with_cnn(vae, x_test, number_of_pictures, save_path
     accuracy = correct_predictions / total_images
 
     print(f'accuracy of cnn prediction on vae generated images: {accuracy*100:.2f}%')
-
-
 
 
 if __name__ == '__main__':

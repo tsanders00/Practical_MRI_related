@@ -1,7 +1,10 @@
-import keras.losses
+"""
+CNN classification model for mri images on Alzheimer's disease
+used mri images were provided by ADNI
+this script was build for usage on my personal computer for testing functionality
+"""
 import utils
 import numpy as np
-import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Conv3D, MaxPooling3D, Flatten, Dense, Dropout
@@ -16,6 +19,12 @@ def prepare(path1: str, path2: str):
 
 
 def trainnn_fullysupervised_3d(adcoronal, cncoronal):
+    """
+    Train neural network fully supervised
+    :param adcoronal:
+    :param cncoronal:
+    :return:
+    """
 
     # Combine the AD and CN data along with their labels
     x = adcoronal + cncoronal
@@ -103,6 +112,12 @@ def trainnn_fullysupervised_3d(adcoronal, cncoronal):
 
 
 def trainnn_semisupervised_self_learning(adcoronal, cncoronal):
+    """
+    attempt at semisupervised learning
+    :param adcoronal:
+    :param cncoronal:
+    :return:
+    """
 
     # Combine the AD and CN data along with their labels
     x = adcoronal + cncoronal
